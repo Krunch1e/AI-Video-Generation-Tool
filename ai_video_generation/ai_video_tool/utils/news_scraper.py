@@ -1,6 +1,8 @@
 import requests
 from dotenv import load_dotenv
 import os
+from PIL import Image
+from io import BytesIO
 
 # Load the environment variables
 load_dotenv()
@@ -26,25 +28,37 @@ def get_article():
     else:
         return "No articles found", "No description available"
 
-def fetch_image(title):
-    # Use Pexels API to fetch a relevant image based on the article's title
-    headers = {
-        'Authorization': PEXELS_API_KEY
-    }
+SERPAPI_KEY = os.getenv("SERPAPI_API_KEY")
+
+def fetch_image(title, description):
+    query = f"{title} {description} graphics card"
     params = {
-        'query': title,
-        'per_page': 1
+        "engine": "google",
+        "q": query,
+        "tbm": "isch",
+        "ijn": "0",
+        "api_key": SERPAPI_KEY
     }
-    response = requests.get(PEXELS_API_URL, headers=headers, params=params)
+
+    response = requests.get("https://serpapi.com/search", params=params)
     data = response.json()
 
-    if data.get('photos'):
-        # Get the first image from the search results
-        image_url = data['photos'][0]['src']['original']
-        img_data = requests.get(image_url).content
-        image_path = 'assets/background.jpg'
-        with open(image_path, 'wb') as handler:
-            handler.write(img_data)
-        return image_path
+    if "images_results" not in data:
+        print("No image results found.")
+        return "assets/background.jpg"
+
+    # Find first result with width >= 800
+    for img in data["images_results"]:
+        if int(img.get("original_width", 0)) >= 800:
+            image_url = img["original"]
+            break
     else:
-        return 'assets/background.jpg'  # Default image if no result is found
+        image_url = data["images_results"][0]["original"]
+
+    # Download image
+    img_data = requests.get(image_url).content
+    img = Image.open(BytesIO(img_data))
+    img_path = "assets/background.jpg"
+    img.save(img_path)
+
+    return img_path
