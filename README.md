@@ -28,7 +28,7 @@ ai_video_tool/
 │   ├── background.jpg
 │   ├── audio.mp3
 │   └── video.mp4
-├── key.env
+├── .env
 ├── README.md
 └── report.pdf
 ```
