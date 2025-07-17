@@ -12,7 +12,10 @@ python-dotenv = "*"
 moviepy = "==1.0.3"
 deepseek = "*"
 ffmpeg = "*"
+google-generativeai = "*"
 transformers = "*"
+accelerate = "*"
+bitsandbytes = "*"
 
 [dev-packages]
 
